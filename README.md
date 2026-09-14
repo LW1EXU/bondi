@@ -4,12 +4,12 @@ Primera etapa: infraestructura, esquema PostGIS y pipeline de candidatos de dato
 Incluye una API de consulta, una portada Next.js conectada a ella y un cliente Android preliminar. **No es todavía una
 plataforma de transporte operativa**: no hay recorridos ni horarios oficiales cargados.
 
-## Android preliminar
+## Android
 
-- 📲 **Descarga directa del APK**: [bondi-0.1.0-alpha.1.apk](https://github.com/LW1EXU/bondi/releases/download/v0.1.0-alpha.1/bondi-0.1.0-alpha.1.apk)
-- 🏷️ **Notas de la versión**: [GitHub Releases v0.1.0-alpha.1](https://github.com/LW1EXU/bondi/releases/tag/v0.1.0-alpha.1)
+- 📲 **Descarga directa del APK**: [bondi-0.2.0-alpha.1.apk](https://github.com/LW1EXU/bondi/releases/download/v0.2.0-alpha.1/bondi-0.2.0-alpha.1.apk)
+- 🏷️ **Notas de la versión**: [GitHub Releases v0.2.0-alpha.1](https://github.com/LW1EXU/bondi/releases/tag/v0.2.0-alpha.1)
 
-Incluye catálogo offline de las 19 líneas solicitadas, búsqueda y favoritos; no requiere conexión a Internet.
+Incluye catálogo offline de las 19 líneas, búsqueda, favoritos, lista completa de paradas y horarios estimados.
 
 ## Inicio local
 
