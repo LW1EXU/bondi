@@ -63,20 +63,23 @@ object Catalog {
         BusStop("stop_unlp_bosque", "UNLP - Exactas / Museo", "Av. 1 y 50", -34.9082, -57.9412),
         BusStop("stop_unlp_informatica", "UNLP - Informática", "Calle 120 y 52", -34.9061, -57.9302),
         BusStop("stop_unlp_medicina", "UNLP - Medicina", "Calle 60 y 120", -34.9123, -57.9242),
-        BusStop("stop_rotonda_autopista", "Rotonda Autopista", "Av. 120 y 32", -34.8912, -57.9442)
+        BusStop("stop_rotonda_autopista", "Rotonda Autopista", "Av. 120 y 32", -34.8912, -57.9442),
+        BusStop("stop_calle_1_42", "Calle 1 y Calle 42", "Calle 1 y 42", -34.9040, -57.9482)
     ).associateBy { it.id }
 
     val lines = listOf(
         BusLine("506", "506", "Comunal", "Los Hornos ↔ Ensenada",
-            listOf("stop_los_hornos_60", "stop_cementerio", "stop_plaza_moreno", "stop_plaza_san_martin", "stop_estacion_tren", "stop_ensenada_centro"), 10),
+            listOf("stop_los_hornos_60", "stop_cementerio", "stop_plaza_moreno", "stop_plaza_san_martin", "stop_calle_1_42", "stop_estacion_tren", "stop_ensenada_centro"), 10),
         BusLine("518", "518", "Comunal", "Aeropuerto ↔ Rep. de los Niños",
             listOf("stop_plaza_rocha", "stop_plaza_italia", "stop_tolosa", "stop_rep_ninos"), 12),
         BusLine("520", "520", "Comunal", "Parque Sicardi ↔ Estación",
             listOf("stop_sicardi", "stop_villa_elvira", "stop_los_hornos_60", "stop_plaza_rocha", "stop_plaza_san_martin", "stop_estacion_tren"), 15),
         BusLine("561", "561", "Comunal", "San Carlos ↔ Estación por Estadio Único",
             listOf("stop_san_carlos", "stop_estadio_unico", "stop_plaza_paso", "stop_plaza_moreno", "stop_estacion_tren"), 12),
+        BusLine("508", "508", "Comunal", "Los Hornos ↔ Villa Elisa",
+            listOf("stop_los_hornos_60", "stop_plaza_paso", "stop_estacion_tren", "stop_villa_elisa"), 15),
         BusLine("este", "Este", "Comunal", "Villa Elvira ↔ Plaza Italia",
-            listOf("stop_villa_elvira", "stop_hosp_san_martin", "stop_unlp_bosque", "stop_plaza_san_martin", "stop_plaza_italia"), 8),
+            listOf("stop_villa_elvira", "stop_hosp_san_martin", "stop_unlp_bosque", "stop_calle_1_42", "stop_plaza_san_martin", "stop_plaza_italia"), 8),
         BusLine("oeste", "Oeste", "Comunal", "Melchor Romero ↔ Estación",
             listOf("stop_melchor_romero", "stop_san_carlos", "stop_hosp_espanol", "stop_plaza_italia", "stop_estacion_tren"), 10),
         BusLine("norte", "Norte", "Comunal", "City Bell ↔ Plaza Moreno",
@@ -86,7 +89,7 @@ object Catalog {
         BusLine("273", "273", "Provincial", "Villa Elisa ↔ Cementerio",
             listOf("stop_villa_elisa", "stop_city_bell", "stop_gonnet", "stop_plaza_italia", "stop_plaza_moreno", "stop_cementerio"), 8),
         BusLine("275", "275", "Provincial", "Astillero ↔ Plaza San Martín",
-            listOf("stop_ensenada_astillero", "stop_ensenada_centro", "stop_estacion_tren", "stop_plaza_san_martin"), 15),
+            listOf("stop_ensenada_astillero", "stop_ensenada_centro", "stop_calle_1_42", "stop_estacion_tren", "stop_plaza_san_martin"), 15),
         BusLine("214", "214", "Provincial", "Berisso ↔ Hosp. San Juan de Dios",
             listOf("stop_berisso_los_talas", "stop_berisso_centro", "stop_berisso_puente_roma", "stop_plaza_san_martin", "stop_hosp_ninos", "stop_hosp_san_juan"), 10),
         BusLine("307", "307", "Provincial", "Río Santiago ↔ Cementerio",
@@ -103,8 +106,10 @@ object Catalog {
             listOf("stop_rotonda_autopista", "stop_terminal_bus", "stop_plaza_italia"), 15),
         BusLine("195", "195", "Provincial", "CABA Retiro ↔ Terminal y Plaza San Martín",
             listOf("stop_rotonda_autopista", "stop_terminal_bus", "stop_plaza_san_martin"), 15),
+        BusLine("338", "338", "Provincial", "La Plata ↔ San Isidro por Ruta 4",
+            listOf("stop_estacion_tren", "stop_terminal_bus", "stop_estadio_unico", "stop_san_carlos"), 15),
         BusLine("unlp", "Rondín Universitario UNLP", "Especial", "Circuito Facultades del Bosque UNLP",
-            listOf("stop_plaza_rocha", "stop_plaza_san_martin", "stop_unlp_bosque", "stop_unlp_informatica", "stop_unlp_medicina"), 12)
+            listOf("stop_plaza_rocha", "stop_plaza_san_martin", "stop_calle_1_42", "stop_unlp_bosque", "stop_unlp_informatica", "stop_unlp_medicina"), 12)
     )
 
     private fun normalize(value: String): String = Normalizer.normalize(value, Normalizer.Form.NFD)

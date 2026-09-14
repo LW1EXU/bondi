@@ -8,8 +8,8 @@ Comprende un **pipeline automatizado de subagentes con la API de Gemini**, backe
 
 ## 📲 Descarga de la App Android
 
-- ⬇️ **Descarga directa del APK**: [bondi-0.3.0-alpha.1.apk](https://github.com/LW1EXU/bondi/releases/download/v0.3.0-alpha.1/bondi-0.3.0-alpha.1.apk)
-- 🏷️ **Notas de la versión**: [GitHub Releases v0.3.0-alpha.1](https://github.com/LW1EXU/bondi/releases/tag/v0.3.0-alpha.1)
+- ⬇️ **Descarga directa del APK**: [bondi-0.4.0-alpha.1.apk](https://github.com/LW1EXU/bondi/releases/download/v0.4.0-alpha.1/bondi-0.4.0-alpha.1.apk)
+- 🏷️ **Notas de la versión**: [GitHub Releases v0.4.0-alpha.1](https://github.com/LW1EXU/bondi/releases/tag/v0.4.0-alpha.1)
 - 🔒 **Firma**: Verificada oficialmente con `apksigner` (Esquemas APK Signature v2 y v3 compatibles con Android 11 a 15+).
 
 ---

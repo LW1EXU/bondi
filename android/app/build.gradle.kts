@@ -10,18 +10,26 @@ android {
         applicationId = "ar.com.bondi.preview"
         minSdk = 26
         targetSdk = 35
-        versionCode = 3
-        versionName = "0.3.0-alpha.1"
+        versionCode = 4
+        versionName = "0.4.0-alpha.1"
     }
     val previewKeystore = file(providers.environmentVariable("BONDI_KEYSTORE").orElse("../../.signing/preview.jks").get())
     val hasPreviewKeystore = previewKeystore.exists()
+    val credentialsFile = file("../../.signing/credentials.json")
+    val defaultPassword = if (credentialsFile.exists()) {
+        val text = credentialsFile.readText()
+        Regex("\"password\":\\s*\"([^\"]+)\"").find(text)?.groupValues?.get(1)
+    } else null
+
     signingConfigs {
         if (hasPreviewKeystore) {
             create("preview") {
                 storeFile = previewKeystore
-                storePassword = providers.environmentVariable("BONDI_STORE_PASSWORD").orNull
+                storePassword = providers.environmentVariable("BONDI_STORE_PASSWORD").orElse(defaultPassword ?: "").get()
                 keyAlias = "bondi-preview"
-                keyPassword = providers.environmentVariable("BONDI_KEY_PASSWORD").orNull
+                keyPassword = providers.environmentVariable("BONDI_KEY_PASSWORD").orElse(defaultPassword ?: "").get()
+                enableV1Signing = true
+                enableV2Signing = true
             }
         }
     }

@@ -39,7 +39,7 @@ async def lifespan(app: FastAPI):
     yield
 
 
-app = FastAPI(title="Bondi API", version="0.3.0-alpha.1", lifespan=lifespan)
+app = FastAPI(title="Bondi API", version="0.4.0-alpha.1", lifespan=lifespan)
 app.include_router(stops_router, prefix="/api/v1")
 
 

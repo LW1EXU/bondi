@@ -85,14 +85,14 @@ export default async function Home() {
 
         <div className="hero-actions">
           <a
-            href="https://github.com/LW1EXU/bondi/releases/download/v0.3.0-alpha.1/bondi-0.3.0-alpha.1.apk"
+            href="https://github.com/LW1EXU/bondi/releases/download/v0.4.0-alpha.1/bondi-0.4.0-alpha.1.apk"
             className="btn-primary"
             download
           >
-            📲 Descargar APK Android (v0.3.0-alpha.1)
+            📲 Descargar APK Android (v0.4.0-alpha.1)
           </a>
           <a
-            href="https://github.com/LW1EXU/bondi/releases/tag/v0.3.0-alpha.1"
+            href="https://github.com/LW1EXU/bondi/releases/tag/v0.4.0-alpha.1"
             className="btn-secondary"
             target="_blank"
             rel="noreferrer"

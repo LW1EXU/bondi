@@ -4,13 +4,13 @@ import org.junit.Test
 
 class CatalogTest {
     @Test fun includesRequestedScope() {
-        assertEquals(19, Catalog.lines.size)
-        assertEquals(19, Catalog.lines.map { it.id }.toSet().size)
+        assertEquals(21, Catalog.lines.size)
+        assertEquals(21, Catalog.lines.map { it.id }.toSet().size)
     }
 
     @Test fun searchIgnoresAccentsAndCase() {
         assertEquals("unlp", Catalog.search("RONDIN").single().id)
-        assertEquals(8, Catalog.search("comunal").size)
+        assertEquals(9, Catalog.search("comunal").size)
         assertTrue(Catalog.search("no-existe").isEmpty())
     }
 
