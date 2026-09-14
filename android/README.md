@@ -15,3 +15,16 @@ El release usa `assembleRelease` y una firma propia de previsualización mediant
 `BONDI_KEYSTORE`, `BONDI_STORE_PASSWORD`, `BONDI_KEY_PASSWORD`, alias `bondi-preview`.
 No subir el keystore ni sus contraseñas. Conservarlos para actualizar el APK sin
 reinstalar. Application ID independiente: `ar.com.bondi.preview`.
+
+La firma local de esta entrega se conserva en `.signing/` (ignorada por Git y Docker).
+Guardar una copia segura del keystore y sus credenciales: perderlos impide actualizar
+instalaciones existentes con la misma firma. No distribuir estos archivos junto al APK.
+
+Con esas variables configuradas, generar y validar el release:
+
+```sh
+./gradlew --no-daemon testDebugUnitTest lintRelease assembleRelease
+```
+
+Resultado: `app/build/outputs/apk/release/app-release.apk`. Las pruebas del catálogo
+usan datos del alcance solicitado; no verifican que las líneas estén operativas.

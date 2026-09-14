@@ -15,10 +15,16 @@ android {
     }
     signingConfigs {
         create("preview") {
-            storeFile = file(providers.environmentVariable("BONDI_KEYSTORE").orElse("../../.signing/preview.jks").get())
-            storePassword = providers.environmentVariable("BONDI_STORE_PASSWORD").orNull
-            keyAlias = "bondi-preview"
-            keyPassword = providers.environmentVariable("BONDI_KEY_PASSWORD").orNull
+            val ksPath = providers.environmentVariable("BONDI_KEYSTORE").orElse("../../.signing/preview.jks").get()
+            val ksFile = file(ksPath)
+            if (ksFile.exists()) {
+                storeFile = ksFile
+                storePassword = providers.environmentVariable("BONDI_STORE_PASSWORD").orNull
+                keyAlias = "bondi-preview"
+                keyPassword = providers.environmentVariable("BONDI_KEY_PASSWORD").orNull
+            } else {
+                initWith(getByName("debug"))
+            }
         }
     }
     buildTypes {

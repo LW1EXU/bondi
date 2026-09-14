@@ -1,1 +1,175 @@
-*{box-sizing:border-box}body{margin:0;background:#f4f5ef;color:#18382b;font-family:Arial,sans-serif}main{max-width:1100px;margin:auto;padding:28px}header{display:flex;justify-content:space-between;align-items:center;gap:20px;font-size:11px;letter-spacing:2px}.brand{font-weight:900;font-size:38px;letter-spacing:-2px}.brand span{color:#7a9635}section{margin:48px 0}.eyebrow{font-size:12px;letter-spacing:2px}h1{font-size:clamp(40px,7vw,76px);letter-spacing:-3px;line-height:1.02;margin:22px 0}h2{font-size:18px;text-transform:capitalize}aside{padding:20px;background:#e7eccf;border-radius:12px;line-height:1.6}.lines{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}article{display:flex;flex-direction:column;gap:18px;padding:24px;background:white;border:1px solid #dce2d5;border-radius:14px}article strong{font-size:25px}article span{font-size:12px;color:#5e6b62}footer{font-size:12px;line-height:1.6;border-top:1px solid #dce2d5;padding-top:20px}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  background: #f4f5ef;
+  color: #18382b;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+}
+main {
+  max-width: 1100px;
+  margin: auto;
+  padding: 28px 20px;
+}
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #dce2d5;
+}
+.brand {
+  font-weight: 900;
+  font-size: 38px;
+  letter-spacing: -2px;
+  text-decoration: none;
+  color: #18382b;
+}
+.brand span {
+  color: #7a9635;
+}
+.header-meta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 11px;
+  letter-spacing: 2px;
+}
+.repo-link {
+  color: #18382b;
+  text-decoration: none;
+  font-weight: 700;
+  padding: 6px 12px;
+  border: 1px solid #c9d2bf;
+  border-radius: 6px;
+  transition: background 0.15s;
+}
+.repo-link:hover {
+  background: #e7eccf;
+}
+section.hero {
+  margin: 44px 0;
+}
+.eyebrow {
+  font-size: 12px;
+  letter-spacing: 2px;
+  color: #5e6b62;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+}
+h1 {
+  font-size: clamp(38px, 6.5vw, 72px);
+  letter-spacing: -3px;
+  line-height: 1.05;
+  margin: 16px 0;
+  font-weight: 900;
+}
+.subtitle {
+  font-size: 18px;
+  color: #435246;
+  margin: 0 0 24px 0;
+}
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 24px;
+}
+.btn-primary {
+  display: inline-block;
+  background: #18382b;
+  color: #f4f5ef;
+  padding: 12px 22px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.15s ease;
+}
+.btn-primary:hover {
+  background: #255240;
+}
+.btn-secondary {
+  display: inline-block;
+  background: white;
+  color: #18382b;
+  border: 1px solid #c9d2bf;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.15s ease;
+}
+.btn-secondary:hover {
+  background: #e7eccf;
+}
+aside {
+  padding: 18px 22px;
+  background: #e7eccf;
+  border-radius: 12px;
+  line-height: 1.6;
+  margin: 32px 0;
+  font-size: 14px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+.tag-offline {
+  display: inline-block;
+  background: #18382b;
+  color: #f4f5ef;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.group-section {
+  margin: 36px 0;
+}
+h2 {
+  font-size: 18px;
+  text-transform: capitalize;
+  margin-bottom: 16px;
+  color: #18382b;
+}
+.lines {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 12px;
+}
+article {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 20px;
+  background: white;
+  border: 1px solid #dce2d5;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+}
+article strong {
+  font-size: 24px;
+  color: #18382b;
+}
+article span {
+  font-size: 12px;
+  color: #5e6b62;
+}
+footer {
+  margin-top: 48px;
+  font-size: 13px;
+  line-height: 1.6;
+  border-top: 1px solid #dce2d5;
+  padding-top: 24px;
+  color: #5e6b62;
+}
+footer p {
+  margin: 4px 0;
+}

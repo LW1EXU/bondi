@@ -6,8 +6,10 @@ plataforma de transporte operativa**: no hay recorridos ni horarios oficiales ca
 
 ## Android preliminar
 
-Descargar el APK desde [GitHub Releases](https://github.com/LW1EXU/bondi/releases).
-Incluye catálogo offline, búsqueda y favoritos; no incluye aún recorridos ni horarios.
+- 📲 **Descarga directa del APK**: [bondi-0.1.0-alpha.1.apk](https://github.com/LW1EXU/bondi/releases/download/v0.1.0-alpha.1/bondi-0.1.0-alpha.1.apk)
+- 🏷️ **Notas de la versión**: [GitHub Releases v0.1.0-alpha.1](https://github.com/LW1EXU/bondi/releases/tag/v0.1.0-alpha.1)
+
+Incluye catálogo offline de las 19 líneas solicitadas, búsqueda y favoritos; no requiere conexión a Internet.
 
 ## Inicio local
 
