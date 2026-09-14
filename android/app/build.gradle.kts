@@ -10,8 +10,8 @@ android {
         applicationId = "ar.com.bondi.preview"
         minSdk = 26
         targetSdk = 35
-        versionCode = 1
-        versionName = "0.1.0-alpha.1"
+        versionCode = 3
+        versionName = "0.3.0-alpha.1"
     }
     val previewKeystore = file(providers.environmentVariable("BONDI_KEYSTORE").orElse("../../.signing/preview.jks").get())
     val hasPreviewKeystore = previewKeystore.exists()

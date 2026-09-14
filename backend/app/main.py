@@ -38,7 +38,7 @@ async def lifespan(app: FastAPI):
     yield
 
 
-app = FastAPI(title="Bondi API", version="0.1.0", lifespan=lifespan)
+app = FastAPI(title="Bondi API", version="0.3.0-alpha.1", lifespan=lifespan)
 
 
 class Line(BaseModel):
@@ -129,21 +129,30 @@ async def health(request: Request):
 
 
 @app.get("/api/v1/lines", response_model=list[LineGroup])
-async def lines(request: Request):
+async def lines(request: Request, type: str | None = None):
     cache = getattr(request.app.state, "cache", None)
+    cache_key = f"lines:v1:{type.lower() if type else 'all'}"
     if cache:
         try:
-            cached = await cache.get("lines:v1")
+            cached = await cache.get(cache_key)
             if cached:
                 return json.loads(cached)
         except RedisError:
             pass
 
-    data = await rows(request, "SELECT l.id,l.name,l.type,l.verified,a.name AS company FROM lines l LEFT JOIN agencies a ON a.id=l.agency_id ORDER BY l.type,a.name,l.name")
+    sql = "SELECT l.id,l.name,l.type,l.verified,a.name AS company FROM lines l LEFT JOIN agencies a ON a.id=l.agency_id"
+    params = ()
+    if type:
+        sql += " WHERE LOWER(l.type) = LOWER(%s)"
+        params = (type,)
+    sql += " ORDER BY l.type,a.name,l.name"
+
+    data = await rows(request, sql, params)
     if not data:
         # Fallback to predefined Gran La Plata lines
+        filtered_lines = [l for l in LINES if not type or l["type"].lower() == type.lower()]
         groups_map = {}
-        for l in LINES:
+        for l in filtered_lines:
             k = (l["type"].capitalize(), l["company"])
             groups_map.setdefault(k, {"type": k[0], "company": k[1], "lines": []})["lines"].append({
                 "id": l["id"],
@@ -162,7 +171,7 @@ async def lines(request: Request):
     result = list(groups.values())
     if cache:
         try:
-            await cache.setex("lines:v1", 60, json.dumps(result))
+            await cache.setex(cache_key, 60, json.dumps(result))
         except RedisError:
             pass
     return result
@@ -264,3 +273,110 @@ async def alerts(request: Request):
     return await rows(request, """SELECT id,title,description,line_id,branch_id,kind FROM alerts
         WHERE moderation_status='approved' AND starts_at<=now() AND (ends_at IS NULL OR ends_at>now())
         ORDER BY starts_at DESC LIMIT 100""")
+
+
+class TripPlanRequest(BaseModel):
+    origin_lat: float = Query(..., ge=-90, le=90)
+    origin_lon: float = Query(..., ge=-180, le=180)
+    dest_lat: float = Query(..., ge=-90, le=90)
+    dest_lon: float = Query(..., ge=-180, le=180)
+    origin_name: str = "Origen"
+    dest_name: str = "Destino"
+
+
+class NaturalTravelQuery(BaseModel):
+    query: str
+
+
+class SyncDeltaResponse(BaseModel):
+    version: str
+    full_sync: bool
+    server_time: str
+    lines: list[dict]
+    branches: list[dict]
+    stops: list[dict]
+    branch_stops: list[dict]
+    alerts: list[dict]
+
+
+@app.post("/api/v1/plan")
+async def plan_route(payload: TripPlanRequest):
+    """Planificador de rutas punto a punto con combinación de micros y tramos peatonales."""
+    from agents.rag_planner import plan_trip
+    plan = plan_trip(
+        origin_lat=payload.origin_lat,
+        origin_lon=payload.origin_lon,
+        dest_lat=payload.dest_lat,
+        dest_lon=payload.dest_lon,
+        origin_name=payload.origin_name,
+        dest_name=payload.dest_name,
+    )
+    return plan
+
+
+@app.post("/api/v1/travel-assistant")
+async def travel_assistant(payload: NaturalTravelQuery):
+    """Subagente RAG de Viaje: Resuelve consultas en lenguaje natural ('cómo voy de 7 y 50 a la facultad de informática')."""
+    from agents.rag_planner import ask_travel_rag
+    plan = ask_travel_rag(payload.query)
+    return plan
+
+
+@app.get("/api/v1/sync/deltas", response_model=SyncDeltaResponse)
+async def sync_deltas(request: Request, since_version: str | None = None):
+    """Endpoint delta para sincronización de datos y funcionamiento 100% offline."""
+    from datetime import datetime, timezone
+
+    # If database is present with sync changes
+    db_changes = await rows(request, "SELECT entity, entity_id, operation, payload FROM sync_changes WHERE version > %s ORDER BY id", (since_version,)) if since_version else []
+
+    all_stops = get_all_stops()
+    all_lines = [
+        {
+            "id": l["id"],
+            "name": l["name"],
+            "type": l["type"],
+            "company": l["company"],
+            "color": l.get("color"),
+            "headsign": l.get("headsign"),
+            "frequency_min": l.get("frequencyMin", 10),
+            "stop_ids": l["stops"],
+        }
+        for l in LINES
+    ]
+
+    all_branches = [
+        {
+            "id": f"{l['id']}_ida",
+            "line_id": l["id"],
+            "name": l["headsign"],
+            "direction": 0,
+            "variant": "regular",
+            "color": l.get("color", "").replace("#", ""),
+        }
+        for l in LINES
+    ]
+
+    all_branch_stops = []
+    for l in LINES:
+        for idx, sid in enumerate(l["stops"]):
+            all_branch_stops.append({
+                "branch_id": f"{l['id']}_ida",
+                "stop_id": sid,
+                "sequence": idx,
+            })
+
+    active_alerts = await rows(request, """SELECT id,title,description,line_id,branch_id,kind FROM alerts
+        WHERE moderation_status='approved' AND starts_at<=now() AND (ends_at IS NULL OR ends_at>now())""")
+
+    return SyncDeltaResponse(
+        version="0.2.0",
+        full_sync=(since_version is None or len(db_changes) == 0),
+        server_time=datetime.now(timezone.utc).isoformat(),
+        lines=all_lines,
+        branches=all_branches,
+        stops=all_stops,
+        branch_stops=all_branch_stops,
+        alerts=active_alerts or [],
+    )
+

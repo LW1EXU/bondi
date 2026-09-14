@@ -1,0 +1,18 @@
+{
+  "name": "Bondi - Transporte La Plata",
+  "short_name": "Bondi",
+  "description": "Transporte público del Gran La Plata. Paradas, recorridos, frecuencias y arribos en tiempo real.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F4F5EF",
+  "theme_color": "#18382B",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -115,6 +115,67 @@ object Catalog {
         return lines.filter { normalize(it.name + " " + it.kind).contains(needle) }
     }
 
+    /**
+     * Buscador optimizado para la cuadrícula de calles y diagonales de La Plata.
+     * Busca coincidencias por nombre de línea, tipo, intersecciones (ej: "7 y 50", "60 y 137"),
+     * diagonales ("Diag. 74") y puntos de interés (facultades, hospitales, plazas).
+     */
+    fun searchPlatense(query: String): List<BusLine> {
+        val clean = normalize(query)
+            .replace("diagonal", "diag")
+            .replace("avenida", "av")
+            .replace("camino", "cno")
+
+        if (clean.isBlank()) return lines
+
+        // 1. Coincidencia directa por línea o tipo
+        val matchedLines = lines.filter { normalize(it.name + " " + it.kind + " " + it.headsign).contains(clean) }.toMutableSet()
+
+        // 2. Coincidencia por paradas o intersecciones de la cuadrícula
+        val matchingStops = stops.values.filter { stop ->
+            val normName = normalize(stop.name)
+            val normAddr = normalize(stop.address)
+                .replace("diagonal", "diag")
+                .replace("avenida", "av")
+                .replace("calle", "")
+            normName.contains(clean) || normAddr.contains(clean)
+        }
+
+        for (stop in matchingStops) {
+            val serving = lines.filter { it.stopIds.contains(stop.id) }
+            matchedLines.addAll(serving)
+        }
+
+        return matchedLines.toList()
+    }
+
+    val alerts = listOf(
+        TransitAlert(
+            id = "alert_1",
+            title = "Obras viales en Av. 7 e/ 44 y 46",
+            description = "Desvío preventivo por Calle 8 para Líneas 506, Norte y 273 en sentido descendente.",
+            lineId = "506",
+            lineName = "506, Norte, 273",
+            isDetour = true
+        ),
+        TransitAlert(
+            id = "alert_2",
+            title = "Rondín UNLP: Servicio reforzado",
+            description = "Salidas cada 8-10 min en horario de cursada entre Estación de Trenes y Facultades del Bosque.",
+            lineId = "unlp",
+            lineName = "Rondín UNLP",
+            isDetour = false
+        ),
+        TransitAlert(
+            id = "alert_3",
+            title = "Renovación de calzada en Diag. 74 y 12",
+            description = "Tránsito restringido hacia Plaza Moreno. Líneas 561 y Oeste circulan por Calle 14.",
+            lineId = "561",
+            lineName = "561 y Oeste",
+            isDetour = true
+        )
+    )
+
     fun getStopsForLine(lineId: String): List<BusStop> {
         val line = lines.find { it.id.equals(lineId, ignoreCase = true) } ?: return emptyList()
         return line.stopIds.mapNotNull { stops[it] }
@@ -159,3 +220,37 @@ object Catalog {
         return arrivals.sortedBy { it.etaSeconds }
     }
 }
+
+data class TransitAlert(
+    val id: String,
+    val title: String,
+    val description: String,
+    val lineId: String? = null,
+    val lineName: String? = null,
+    val isDetour: Boolean = true
+)
+
+data class SubeEstimation(
+    val balance: Double,
+    val fareComunal: Double = 371.13,
+    val fareProvincial: Double = 413.44,
+    val emergencyLimit: Double = -480.0,
+    val tripsComunal: Int = 0,
+    val remainingWithEmergency: Double = 0.0
+) {
+    companion object {
+        fun calculate(balance: Double): SubeEstimation {
+            val totalUsable = balance - (-480.0)
+            val trips = if (totalUsable > 0) (totalUsable / 371.13).toInt() else 0
+            return SubeEstimation(
+                balance = balance,
+                fareComunal = 371.13,
+                fareProvincial = 413.44,
+                emergencyLimit = -480.0,
+                tripsComunal = trips,
+                remainingWithEmergency = kotlin.math.max(0.0, totalUsable)
+            )
+        }
+    }
+}
+

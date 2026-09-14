@@ -610,3 +610,195 @@ footer {
 footer p {
   margin: 4px 0;
 }
+
+/* RAG Travel Assistant & Planner */
+.travel-planner-bar {
+  margin-bottom: 16px;
+}
+.travel-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  background: white;
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1px solid #dce2d5;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+.planner-label-box {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #e7eccf;
+  padding: 6px 12px;
+  border-radius: 8px;
+}
+.planner-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: #18382b;
+}
+.travel-input {
+  flex: 1;
+  min-width: 260px;
+  padding: 10px 14px;
+  border: 1px solid #c9d2bf;
+  border-radius: 8px;
+  font-size: 14px;
+  outline: none;
+}
+.travel-input:focus {
+  border-color: #18382b;
+}
+.btn-plan {
+  background: #18382b;
+  color: white;
+  padding: 10px 18px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.btn-plan:hover {
+  background: #255240;
+}
+.btn-plan:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.travel-plan-card {
+  margin-top: 12px;
+  background: white;
+  border: 2px solid #7a9635;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+.plan-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.plan-badge {
+  background: #e7eccf;
+  color: #18382b;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 4px 8px;
+  border-radius: 6px;
+  margin-right: 8px;
+}
+.close-plan {
+  background: transparent;
+  border: none;
+  color: #5e6b62;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+}
+.plan-summary {
+  font-size: 14px;
+  color: #18382b;
+  margin: 0 0 12px 0;
+  line-height: 1.4;
+}
+.plan-legs {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.plan-leg-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #f4f5ef;
+  padding: 8px 12px;
+  border-radius: 8px;
+}
+.leg-icon {
+  font-size: 20px;
+}
+.leg-content {
+  flex: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+}
+.leg-instruction {
+  font-weight: 600;
+  color: #18382b;
+}
+.leg-time {
+  font-size: 12px;
+  font-weight: 700;
+  color: #5e6b62;
+}
+
+/* Frequency Accordion */
+.frequency-accordion {
+  margin-top: 24px;
+  background: white;
+  border: 1px solid #dce2d5;
+  border-radius: 12px;
+  overflow: hidden;
+}
+.accordion-toggle {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  background: white;
+  border: none;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 700;
+  color: #18382b;
+  transition: background 0.15s;
+}
+.accordion-toggle:hover {
+  background: #f7f8f3;
+}
+.accordion-state {
+  font-size: 13px;
+  color: #5e6b62;
+  font-weight: 600;
+}
+.frequency-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+  padding: 20px;
+  border-top: 1px solid #dce2d5;
+  background: #fafbfa;
+}
+.freq-col {
+  background: white;
+  padding: 16px;
+  border: 1px solid #e2e7dc;
+  border-radius: 10px;
+}
+.freq-col h4 {
+  margin: 0 0 4px 0;
+  font-size: 15px;
+  color: #18382b;
+}
+.freq-desc {
+  font-size: 12px;
+  color: #728076;
+  margin: 0 0 10px 0;
+}
+.freq-col ul {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 13px;
+  color: #333;
+}
+.freq-col li {
+  margin-bottom: 6px;
+}
+

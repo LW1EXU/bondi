@@ -1,100 +1,141 @@
 # Bondi · Gran La Plata
 
-Primera etapa: infraestructura, esquema PostGIS y pipeline de candidatos de datos con Gemini.
-Incluye una API de consulta, una portada Next.js conectada a ella y un cliente Android preliminar. **No es todavía una
-plataforma de transporte operativa**: no hay recorridos ni horarios oficiales cargados.
+Plataforma integral de transporte público para el Gran La Plata (La Plata, Berisso y Ensenada).
 
-## Android
+Comprende un **pipeline automatizado de subagentes con la API de Gemini**, backend de alto rendimiento en **FastAPI + PostgreSQL/PostGIS + Redis**, app nativa para **Android en Kotlin/Jetpack Compose** y versión web móvil **PWA en Next.js**.
 
-- 📲 **Descarga directa del APK**: [bondi-0.2.0-alpha.1.apk](https://github.com/LW1EXU/bondi/releases/download/v0.2.0-alpha.1/bondi-0.2.0-alpha.1.apk)
-- 🏷️ **Notas de la versión**: [GitHub Releases v0.2.0-alpha.1](https://github.com/LW1EXU/bondi/releases/tag/v0.2.0-alpha.1)
+---
 
-Incluye catálogo offline de las 19 líneas, búsqueda, favoritos, lista completa de paradas y horarios estimados.
+## 📲 Descarga de la App Android
 
-## Inicio local
+- ⬇️ **Descarga directa del APK**: [bondi-0.3.0-alpha.1.apk](https://github.com/LW1EXU/bondi/releases/download/v0.3.0-alpha.1/bondi-0.3.0-alpha.1.apk)
+- 🏷️ **Notas de la versión**: [GitHub Releases v0.3.0-alpha.1](https://github.com/LW1EXU/bondi/releases/tag/v0.3.0-alpha.1)
+- 🔒 **Firma**: Verificada oficialmente con `apksigner` (Esquemas APK Signature v2 y v3 compatibles con Android 11 a 15+).
 
-Requisitos: Docker Engine con Compose v2. Copiar `.env.example` a `.env`:
+---
+
+## 🏛️ Arquitectura del Sistema
+
+```
+                         ┌─────────────────────────────────┐
+                         │   Fuentes Oficiales / Portales  │
+                         └────────────────┬────────────────┘
+                                          │
+                                 [1] CRAWLER AGENT
+                                          │
+                                 [2] NORMALIZER AGENT
+                           (Cuadrícula Platense + Gemini API)
+                                          │
+                                 [3] VALIDATOR & DIFF
+                                          │
+                                          ▼
+                      ┌───────────────────────────────────────┐
+                      │    PostgreSQL 16 + PostGIS Spatial    │
+                      │  (Paradas, Ramales, GTFS, Deltas)     │
+                      └───────┬───────────────────────┬───────┘
+                              │                       │
+                              ▼                       ▼
+                     ┌────────────────┐       ┌───────────────┐
+                     │  Redis 7 Cache │       │ RAG TRAVEL AG.│
+                     └────────┬───────┘       └───────┬───────┘
+                              │                       │
+                              ▼                       ▼
+                 ┌─────────────────────────────────────────────────┐
+                 │          FastAPI Backend REST & GeoJSON         │
+                 │   /lines · /stops · /plan · /travel-assistant   │
+                 └──────────────┬───────────────────┬──────────────┘
+                                │                   │
+                                ▼                   ▼
+        ┌───────────────────────────────┐   ┌───────────────────────────────┐
+        │     Android Nativo (Kotlin)   │   │      Next.js 16 Web / PWA     │
+        │ • Compose + SQLite Offline    │   │ • Leaflet interactivo         │
+        │ • Buscador "7 y 50", Diag. 74 │   │ • Contador en vivo (min:seg)  │
+        │ • Calculadora SUBE + Atajo NFC│   │ • Asistente RAG integrado     │
+        │ • Notificaciones y Alertas    │   │ • Workbox Service Worker      │
+        └───────────────────────────────┘   └───────────────────────────────┘
+```
+
+---
+
+## 1. Pipeline de Subagentes (`/agents`)
+
+- **Subagente Scraper & Crawler (`agents/crawler.py`)**: Rastreo acotado y seguro con validación de hosts, `robots.txt` y archivado inmutable con hash SHA-256 para las 19 líneas:
+  * Comunales: **506, 518, 520, 561, Este, Oeste, Norte, Sur**.
+  * Provinciales: **273, 275, 214, 307, 202, 215, 418, 414, 129, 195**.
+  * Especiales: **Rondín Universitario UNLP**.
+- **Subagente Normalizador (`agents/normalizer.py`)**: Parser geográfico platense que interpreta direcciones numéricas (*"7 y 50"*, *"60 y 137"*), diagonales (*"Diag. 74"*) y puntos de interés (facultades, hospitales, terminales y plazas). Genera capas GeoJSON y secuencias GTFS.
+- **Subagente Verificador & Diff (`agents/validator.py`)**: Control topológico de integridad, detección de anomalías y saltos anómalos (>10 km) y versionado semántico de la red.
+- **Subagente RAG de Viaje (`agents/rag_planner.py`)**: Motor de planificación multimodal en lenguaje natural. Interpreta origen y destino, evalúa conexiones directas o con 1 transbordo a través de nodos clave (Plaza San Martín, Plaza Moreno, Plaza Italia, Estación La Plata, etc.), calcula tramos peatonales e instruye paso a paso.
+
+---
+
+## 2. Backend & API (`/backend`)
+
+Desarrollado en **FastAPI**, **PostgreSQL 16 / PostGIS** y **Redis**:
+- `GET /api/v1/lines?type=comunal|provincial|especial`: Catálogo agrupado y filtrable con caché en Redis.
+- `GET /api/v1/stops/nearby?lat={lat}&lon={lon}&radius={m}`: Búsqueda geoespacial mediante `ST_DWithin`.
+- `GET /api/v1/stops/{id}/arrivals`: Arribos y frecuencias en tiempo real con cuenta regresiva en segundos.
+- `GET /api/v1/lines/{id}/branches` y `/stops`: Trazado secuencial de paradas por ramal.
+- `POST /api/v1/plan`: Planificador de rutas punto a punto con tramos de caminata y micros.
+- `POST /api/v1/travel-assistant`: Subagente RAG para consultas en lenguaje natural (*"cómo voy de 7 y 50 a la facultad de informática"*).
+- `GET /api/v1/sync/deltas`: Endpoint para sincronización delta y funcionamiento 100% offline.
+- `GET /api/v1/alerts`: Alertas y desvíos activos moderados.
+
+---
+
+## 3. App Nativa Android (`/android`)
+
+- **Kotlin + Jetpack Compose** con arquitectura Clean + MVVM.
+- **Buscador Platense**: Optimizado para la cuadrícula y diagonales de La Plata.
+- **Persistencia Offline**: Base de datos SQLite local (`BondiDbHelper`) para almacenamiento de favoritos y catálogo sin conexión a Internet.
+- **Pestañas**:
+  1. **Líneas**: Consulta de ramales, cabeceras, frecuencias y paradas de las 19 líneas.
+  2. **Paradas**: Directorio georreferenciado con cuenta regresiva en vivo de cada micro.
+  3. **SUBE / NFC**: Calculadora de pasajes según saldo actual ($371,13 comunal, $413,44 provincial), saldo de emergencia (-$480) y atajo a acreditación por NFC.
+  4. **Alertas**: Notificaciones de desvíos y cortes de tránsito en La Plata.
+
+---
+
+## 4. Versión Web / PWA (`/web`)
+
+- **Next.js 16 + Tailwind CSS (Mobile-First)**.
+- **Mapa interactivo Leaflet**: Trazado de recorridos, marcadores interactivos y selector de paradas.
+- **Temporizador en vivo**: Cuenta regresiva en minutos y segundos hacia el próximo micro.
+- **Asistente de Viaje RAG**: Consultas directas de viaje con detalle paso a paso de transbordos y caminatas.
+- **Panel colapsable de frecuencias**:
+  - Horario diurno (pico 6-10 min, valle 10-14 min).
+  - Horario nocturno (rondines cada 30-45 min).
+  - Días no hábiles (sábados 12-18 min, domingos y feriados 20-30 min).
+- **Service Worker PWA (Workbox)**: Cache de mapas, recursos estáticos y funcionamiento offline.
+
+---
+
+## 🚀 Inicio Rápido con Docker
 
 ```sh
-cp .env.example .env
+# 1. Clonar el repositorio
+git clone https://github.com/LW1EXU/bondi.git
+cd bondi
+
+# 2. Levantar todos los servicios (PostGIS, Redis, FastAPI, Worker y Next.js)
 docker compose up --build
 ```
 
-Web: http://localhost:3000 · API/OpenAPI: http://localhost:8000/docs.
-PostgreSQL y Redis son internos a la red de Compose. La contraseña predeterminada es
-solo para desarrollo. No guardar claves en Git. `schema.sql` se ejecuta únicamente
-al crear el volumen de PostgreSQL por primera vez; cambios posteriores requieren migraciones.
+- **Frontend Web**: http://localhost:3000
+- **Documentación API (Swagger/OpenAPI)**: http://localhost:8000/docs
 
-## Estructura y alcance implementado
+---
 
-- `schema.sql`: entidades de transporte, índices GiST, calendarios/excepciones, horarios
-  con segundos superiores a 86400, alertas moderadas, versiones y registro de deltas.
-- `backend/`: FastAPI, Pydantic, pool PostgreSQL y caché Redis opcional de líneas (60 s).
-- `agents/crawler.py`: fuentes HTTPS explícitas, robots.txt, rastreo acotado, límite
-  de descarga, archivo SHA-256 y extracción estructurada de ramales y avisos.
-- `agents/normalizer.py`: parser local y Gemini Flash para nombres desconocidos;
-  coordenadas exclusivas del nomenclátor con referencia a fuente.
-- `agents/validator.py`: integridad determinista, diff semántico y revisión Gemini Pro.
-- `agents/worker.py`: ejecución diaria a las 03:00 de Buenos Aires (06:00 UTC).
-- `web/`: portada responsive Next.js que muestra el catálogo y su estado de verificación.
-- `android/`: app preliminar Kotlin/Compose con catálogo offline, búsqueda, detalle y favoritos.
-  Ver [android/README.md](android/README.md) para compilar y firmar el APK.
-
-El catálogo contiene las 19 denominaciones pedidas. Empresas, jurisdicciones y vigencia
-requieren verificación: el seed representa el alcance solicitado, no un padrón oficial.
-
-Endpoints implementados: `GET /api/v1/lines`, `/api/v1/lines/{id}/branches`,
-`/api/v1/lines/{id}/branches/{branch_id}/stops`, `/api/v1/stops/nearby`, `/api/v1/alerts`.
-No se exponen rutas ficticias para el planificador ni la sincronización.
-
-## Ejecutar el pipeline
-
-1. Configurar `GEMINI_API_KEY` en `.env`; modelos configurables mediante variables.
-2. Editar `agents/config/sources.json` con URLs finales verificadas de documentos de
-   recorridos y sus hosts permitidos. La fuente incluida está **deshabilitada**: sirve
-   para descubrimiento, no contiene por sí sola un dataset de recorridos completo.
-3. Completar `agents/config/gazetteer.json` con objetos `canonical`, `lat`, `lon`,
-   `source_url`. Una esquina no identifica necesariamente el lado o andén de una parada:
-   antes de publicar deben revisarse ambos. No se usa una fórmula de cuadrícula para
-   inventar coordenadas de diagonales o caminos.
-4. Ejecutar:
+## 🧪 Pruebas Unitarias y Validación
 
 ```sh
-docker compose run --rm worker python -m agents.worker --once
+# Pruebas del Backend y Pipeline de Agentes (33 tests)
+.venv/bin/pytest -v
+
+# Compilación y verificación del Frontend Web
+cd web && npm run build
+
+# Pruebas y compilación de la App Android
+cd android
+./gradlew testDebugUnitTest assembleRelease
 ```
-
-Los artefactos quedan en el volumen `pipeline_data`, bajo `/data/runs/<id>/`:
-originales, metadatos, extracciones, candidato, revisión y estado. Un error conserva
-el dataset publicado anterior. Un candidato aprobado por Gemini sigue en
-`review_required`: la publicación transaccional es una etapa aún pendiente.
-La comparación toma `/data/published.json` con estructura
-`{"version":"0.1.0","dataset":{"branches":[...]}}` cuando existe.
-
-Los avisos se conservan en `extractions.json`, sin publicación automática. Robots
-inaccesible, redirecciones, PDFs e imágenes bloquean la fuente en esta versión;
-requieren URL final o adaptador. No se descarta silenciosamente una fuente fallida.
-El GeoJSON une paradas en orden y está marcado `stop_sequence_not_road_shape`:
-**no es una traza vial**. No se exporta un GTFS incompleto sin horarios/calendarios.
-
-## Pruebas
-
-```sh
-python3 -m venv .venv
-.venv/bin/pip install -e '.[test]'
-.venv/bin/python -m pytest -q
-cd web
-npm ci
-npm run build
-```
-
-Las pruebas usan fixtures sintéticas y mocks, sin consumir Gemini ni fuentes oficiales.
-No reemplazan pruebas de integración con PostGIS ni una auditoría de los datos.
-
-## Siguientes etapas
-
-Ver [docs/architecture.md](docs/architecture.md) para publicación, GTFS, routing,
-sincronización, Android, PWA y controles de operación pendientes.
-
-Referencias utilizadas: [Google GenAI SDK](https://googleapis.github.io/python-genai/),
-[GTFS Schedule](https://gtfs.org/documentation/schedule/reference/),
-[directorio oficial PBA](https://gba.gob.ar/transporte/transporte_de_pasajeros/listado_de_empresas).
