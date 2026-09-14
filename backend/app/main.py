@@ -16,6 +16,7 @@ from backend.app.transport_data import (
     get_stop_by_id,
     calculate_arrivals,
 )
+from backend.app.routers.stops import router as stops_router
 
 
 @asynccontextmanager
@@ -39,6 +40,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="Bondi API", version="0.3.0-alpha.1", lifespan=lifespan)
+app.include_router(stops_router, prefix="/api/v1")
 
 
 class Line(BaseModel):

@@ -268,6 +268,19 @@ STOPS = {
         "lon": -57.9442,
         "landmark": "Ingreso y egreso Autopista Dr. Balbín",
     },
+    "stop_calle_1_42": {
+        "id": "stop_calle_1_42",
+        "stop_code": 1735,
+        "name": "Calle 1 y Calle 42",
+        "street": "1",
+        "cross_street": "42",
+        "intersection": "Calle 1 y Calle 42",
+        "address": "Calle 1 y 42",
+        "lat": -34.9040,
+        "lon": -57.9482,
+        "zone": "Casco Urbano",
+        "landmark": "Esquina Calle 1 y Calle 42 (Arribos y Telemetría)",
+    },
 }
 
 LINES = [
@@ -284,6 +297,7 @@ LINES = [
             "stop_cementerio",
             "stop_plaza_moreno",
             "stop_plaza_san_martin",
+            "stop_calle_1_42",
             "stop_estacion_tren",
             "stop_ensenada_centro",
         ],
@@ -348,6 +362,7 @@ LINES = [
             "stop_villa_elvira",
             "stop_hosp_san_martin",
             "stop_unlp_bosque",
+            "stop_calle_1_42",
             "stop_plaza_san_martin",
             "stop_plaza_italia",
         ],
@@ -429,6 +444,7 @@ LINES = [
         "stops": [
             "stop_ensenada_astillero",
             "stop_ensenada_centro",
+            "stop_calle_1_42",
             "stop_estacion_tren",
             "stop_plaza_san_martin",
         ],
@@ -564,6 +580,7 @@ LINES = [
         "stops": [
             "stop_plaza_rocha",
             "stop_plaza_san_martin",
+            "stop_calle_1_42",
             "stop_unlp_bosque",
             "stop_unlp_informatica",
             "stop_unlp_medicina",
