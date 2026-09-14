@@ -1,3 +1,5 @@
+import BondiMap from './components/BondiMap';
+
 export const dynamic = 'force-dynamic';
 
 const DEFAULT_GROUPS = [
@@ -77,7 +79,9 @@ export default async function Home() {
       <section className="hero">
         <p className="eyebrow">TU CIUDAD, MÁS CERCA</p>
         <h1>El próximo viaje<br />empieza acá.</h1>
-        <p className="subtitle">Conocé las {totalLines} líneas del transporte público del Gran La Plata.</p>
+        <p className="subtitle">
+          Consultá las paradas, recorridos y horarios estimados con cuenta regresiva en vivo para las {totalLines} líneas del Gran La Plata.
+        </p>
 
         <div className="hero-actions">
           <a
@@ -98,28 +102,50 @@ export default async function Home() {
         </div>
       </section>
 
+      {/* Interactive Map Section */}
+      <section className="map-section">
+        <div className="section-title-row">
+          <div>
+            <span className="eyebrow">MAPA INTERACTIVO EN TIEMPO REAL</span>
+            <h2>Paradas y Próximas Llegadas de Micros</h2>
+            <p>Hacé clic en cualquier parada para ver qué líneas pasan y el contador de cuánto falta para el próximo micro.</p>
+          </div>
+        </div>
+
+        <BondiMap />
+      </section>
+
       <aside role="status">
-        <strong>Versión preliminar:</strong> Estamos preparando los recorridos oficiales. El catálogo inicial cubre las 19 líneas solicitadas y requiere verificación de fuentes, ramales y horarios.
+        <strong>Versión preliminar:</strong> Estamos preparando los recorridos oficiales. El catálogo cubre las 19 líneas solicitadas y los horarios son estimaciones programadas con frecuencia regular.
         {isFallback && <span className="tag-offline">Catálogo local disponible</span>}
       </aside>
 
-      {groups.map((group) => (
-        <section key={`${group.type}-${group.company}`} className="group-section">
-          <h2>{group.type} · {group.company || 'Empresa por verificar'}</h2>
-          <div className="lines">
-            {group.lines.map((line) => (
-              <article key={line.id}>
-                <strong>{line.name}</strong>
-                <span>{line.verified ? 'Verificada' : 'Pendiente de verificación'}</span>
-              </article>
-            ))}
+      <section className="catalog-section">
+        <div className="section-title-row">
+          <div>
+            <span className="eyebrow">DIRECTORIO DE TRANSPORTE</span>
+            <h2>Catálogo de Líneas del Gran La Plata</h2>
           </div>
-        </section>
-      ))}
+        </div>
+
+        {groups.map((group) => (
+          <div key={`${group.type}-${group.company}`} className="group-section">
+            <h3>{group.type} · {group.company || 'Empresa por verificar'}</h3>
+            <div className="lines">
+              {group.lines.map((line) => (
+                <article key={line.id}>
+                  <strong>{line.name}</strong>
+                  <span>{line.verified ? 'Verificada' : 'Catálogo activo'}</span>
+                </article>
+              ))}
+            </div>
+          </div>
+        ))}
+      </section>
 
       <footer>
-        <p>Bondi · Información de transporte público del Gran La Plata en construcción.</p>
-        <p>Catálogo offline disponible en Android. Sin estimaciones en tiempo real por el momento.</p>
+        <p>Bondi · Transporte público del Gran La Plata (La Plata, Berisso, Ensenada).</p>
+        <p>Catálogo offline disponible en Android. Horarios y frecuencias orientativos.</p>
       </footer>
     </main>
   );

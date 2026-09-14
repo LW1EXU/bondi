@@ -91,22 +91,79 @@ fun PreviewNotice() {
 
 @Composable
 fun LineDetailScreen(line: BusLine, favorite: Boolean, onFavorite: () -> Unit, onBack: () -> Unit) {
-    LazyColumn(Modifier.fillMaxSize().safeDrawingPadding(), contentPadding = PaddingValues(24.dp),
-        verticalArrangement = Arrangement.spacedBy(20.dp)) {
+    val stops = remember(line.id) { Catalog.getStopsForLine(line.id) }
+
+    LazyColumn(
+        Modifier.fillMaxSize().safeDrawingPadding(),
+        contentPadding = PaddingValues(24.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
         item { TextButton(onClick = onBack) { Text("← Todas las líneas") } }
         item {
             Text(line.name, style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.Bold)
-            Text(line.kind)
-        }
-        item { Button(onClick = onFavorite) { Text(if (favorite) "Quitar de favoritos" else "Guardar en favoritos") } }
-        item { PreviewNotice() }
-        item {
-            Text("Ramales y paradas", style = MaterialTheme.typography.titleLarge)
-            Text("Estamos preparando la información oficial de esta línea. La empresa, sus variantes y la vigencia del servicio aún requieren validación.")
+            Text("${line.kind} · Frecuencia cada ${line.frequencyMin} min", style = MaterialTheme.typography.bodyMedium)
+            if (line.headsign.isNotEmpty()) {
+                Text(line.headsign, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.primary)
+            }
         }
         item {
-            Text("Tus favoritos quedan en este dispositivo", style = MaterialTheme.typography.titleMedium)
-            Text("Esta versión no requiere cuenta, ubicación ni conexión a Internet.")
+            Button(onClick = onFavorite) {
+                Text(if (favorite) "Quitar de favoritos" else "Guardar en favoritos")
+            }
+        }
+
+        item {
+            Text("Paradas y Próximos Arribos (${stops.size})", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+        }
+
+        items(stops, key = { it.id }) { stop ->
+            val arrivals = remember(stop.id) { Catalog.calculateArrivals(stop.id) }
+            val nextBus = arrivals.firstOrNull { it.lineId == line.id } ?: arrivals.firstOrNull()
+
+            Card(
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Column(Modifier.padding(16.dp)) {
+                    Text(stop.name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                    Text(stop.address, style = MaterialTheme.typography.bodySmall)
+
+                    Spacer(Modifier.height(8.dp))
+
+                    if (nextBus != null) {
+                        Surface(
+                            shape = MaterialTheme.shapes.small,
+                            color = MaterialTheme.colorScheme.primaryContainer,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text(
+                                    text = if (nextBus.etaSeconds <= 45) "¡Llegando a parada!" else "Próximo: ${nextBus.scheduledTime} hs",
+                                    style = MaterialTheme.typography.labelMedium,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Text(
+                                    text = if (nextBus.etaSeconds <= 45) "🟢 AHORA" else "⏱️ en ${nextBus.etaMinutes} min",
+                                    style = MaterialTheme.typography.labelMedium,
+                                    fontWeight = FontWeight.ExtraBold,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                            }
+                        }
+                    } else {
+                        Text("Sin arribos inmediatos programados", style = MaterialTheme.typography.bodySmall)
+                    }
+                }
+            }
+        }
+
+        item {
+            Spacer(Modifier.height(8.dp))
+            Text("Tus favoritos quedan en este dispositivo", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
+            Text("Esta versión no requiere cuenta ni conexión permanente a Internet.", style = MaterialTheme.typography.bodySmall)
         }
     }
 }
