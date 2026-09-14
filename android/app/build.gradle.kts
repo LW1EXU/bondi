@@ -13,23 +13,23 @@ android {
         versionCode = 1
         versionName = "0.1.0-alpha.1"
     }
+    val previewKeystore = file(providers.environmentVariable("BONDI_KEYSTORE").orElse("../../.signing/preview.jks").get())
+    val hasPreviewKeystore = previewKeystore.exists()
     signingConfigs {
-        create("preview") {
-            val ksPath = providers.environmentVariable("BONDI_KEYSTORE").orElse("../../.signing/preview.jks").get()
-            val ksFile = file(ksPath)
-            if (ksFile.exists()) {
-                storeFile = ksFile
+        if (hasPreviewKeystore) {
+            create("preview") {
+                storeFile = previewKeystore
                 storePassword = providers.environmentVariable("BONDI_STORE_PASSWORD").orNull
                 keyAlias = "bondi-preview"
                 keyPassword = providers.environmentVariable("BONDI_KEY_PASSWORD").orNull
-            } else {
-                initWith(getByName("debug"))
             }
         }
     }
     buildTypes {
         getByName("release") {
-            signingConfig = signingConfigs.getByName("preview")
+            if (hasPreviewKeystore) {
+                signingConfig = signingConfigs.getByName("preview")
+            }
             isMinifyEnabled = false
         }
     }

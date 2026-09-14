@@ -78,13 +78,19 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Run unit tests and assemble release
-        run: ./gradlew testDebugUnitTest assembleRelease --stacktrace
+      - name: Run unit tests and assemble APK
+        run: ./gradlew testDebugUnitTest assembleRelease assembleDebug --stacktrace
 
       - name: Prepare APK artifact
         run: |
           mkdir -p ../dist
-          cp app/build/outputs/apk/release/app-release.apk ../dist/bondi-app.apk
+          if [ -f app/build/outputs/apk/release/app-release.apk ]; then
+            cp app/build/outputs/apk/release/app-release.apk ../dist/bondi-app.apk
+          elif [ -f app/build/outputs/apk/release/app-release-unsigned.apk ]; then
+            cp app/build/outputs/apk/release/app-release-unsigned.apk ../dist/bondi-app.apk
+          else
+            cp app/build/outputs/apk/debug/app-debug.apk ../dist/bondi-app.apk
+          fi
           cd ../dist
           sha256sum bondi-app.apk > SHA256SUMS.txt
 
