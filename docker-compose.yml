@@ -1,0 +1,64 @@
+name: bondi
+services:
+  db:
+    image: postgis/postgis:16-3.4
+    environment:
+      POSTGRES_DB: bondi
+      POSTGRES_USER: bondi
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-bondi_local_only}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./schema.sql:/docker-entrypoint-initdb.d/001-schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bondi -d bondi"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--maxmemory", "128mb", "--maxmemory-policy", "allkeys-lru"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    environment:
+      DATABASE_URL: postgresql://bondi:${POSTGRES_PASSWORD:-bondi_local_only}@db:5432/bondi
+      REDIS_URL: redis://redis:6379/0
+    ports: ["127.0.0.1:8000:8000"]
+    depends_on:
+      db: {condition: service_healthy}
+      redis: {condition: service_healthy}
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+  worker:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    command: ["python", "-m", "agents.worker"]
+    environment:
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      GEMINI_FLASH_MODEL: ${GEMINI_FLASH_MODEL:-gemini-2.5-flash}
+      GEMINI_PRO_MODEL: ${GEMINI_PRO_MODEL:-gemini-2.5-pro}
+      DATA_DIR: /data
+    volumes:
+      - pipeline_data:/data
+      - ./agents/config:/app/agents/config:ro
+    restart: unless-stopped
+  web:
+    build: ./web
+    environment:
+      BACKEND_URL: http://backend:8000
+    ports: ["127.0.0.1:3000:3000"]
+    depends_on:
+      backend: {condition: service_healthy}
+volumes:
+  postgres_data:
+  pipeline_data:

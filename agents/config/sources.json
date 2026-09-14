@@ -1,0 +1,9 @@
+[
+  {
+    "id": "pba", "enabled": false,
+    "urls": ["https://gba.gob.ar/transporte/transporte_de_pasajeros/listado_de_empresas"],
+    "allowed_hosts": ["gba.gob.ar", "www.gba.gob.ar"],
+    "link_terms": ["recorrido", "parada", "desvio"], "max_pages": 5,
+    "note": "Fuente de descubrimiento; reemplazar por documentos de recorridos vigentes antes de habilitar."
+  }
+]
